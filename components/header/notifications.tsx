@@ -10,11 +10,11 @@ const Notifications = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   
   // 1. Create a reference to the wrapper div
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // 2. Listen for clicks outside of the referenced element
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: any; }) => {
       // If the dropdown is open and the click is outside the wrapper div, close it
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
