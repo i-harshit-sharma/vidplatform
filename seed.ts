@@ -8,7 +8,7 @@ import History from "./models/history";
 import Playlist from "./models/playlist";
 import Subscription from "./models/subscriptions";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI!;
 if(!MONGODB_URI) {
 	console.error("MONGODB_URI is not defined in environment variables");
 	process.exit(1);
