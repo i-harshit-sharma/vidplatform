@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.font-cascadia-mono {
+  font-family: var(--font-cascadia-mono), monospace;
+}
