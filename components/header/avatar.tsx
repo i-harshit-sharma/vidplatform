@@ -120,17 +120,17 @@ const Avatar = ({ size = 40 }) => {
 							</h3>
 							<button
 								className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-								onClick={() => {
-									logoutUser();
-                  setShowDropdown(false);
+								onClick={async () => {
+									await logoutUser();
+									setShowDropdown(false);
 								}}
 							>
 								Logout
 							</button>
 							<button
 								className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-								onClick={() => {
-                  globalLogout();
+								onClick={async () => {
+									await globalLogout();
 									// Implement profile navigation logic here
 								}}
 							>
