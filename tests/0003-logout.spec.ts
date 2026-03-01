@@ -1,25 +1,22 @@
-import test, { expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 test.describe('Logout Functionality', () => {
-    test.beforeEach(async ({ page }) => {
-        // The global auth setup should already have us logged in
-        await page.goto('http://localhost:3000/');
-    });
+    // 1. Tell this test NOT to use the global storage state
+    test.use({ storageState: { cookies: [], origins: [] } });
 
-    test("Should be logged in from global setup", async ({ page }) => {
-        // Verify we are on the home page and not redirected to login
-        await expect(page).toHaveURL('http://localhost:3000/');
+    test("Should be logged in and then logout successfully", async ({ page }) => {
+        // 2. Perform a manual login for JUST this test
+        await page.goto('http://localhost:3000/login');
+        await page.fill('[name="email"]', 'test@example.com');
+        await page.fill('[name="password"]', 'password123');
+        await page.click('button[type="submit"]');
 
-        // Verify the avatar/user menu is visible (indicates logged in)
-        const avatarTitle = page.locator('div[title]');
-        const avatarBtn = page.locator('button').filter({ has: avatarTitle }).first();
-        await expect(avatarBtn).toBeVisible();
-
-        // Perform logout
+        // 3. Perform logout
+        const avatarBtn = page.locator('button').filter({ has: page.locator('div[title]') }).first();
         await avatarBtn.click();
-        await page.locator('button', { hasText: 'Logout' }).first().click();
+        await page.click('text=Logout');
 
-        // Verify we are no longer logged in (avatar should not be visible)
-        await expect(page.locator('div[title]')).not.toBeVisible();
+        // 4. Verify
+        await expect(page).toHaveURL(/.*login/);
     });
 });
