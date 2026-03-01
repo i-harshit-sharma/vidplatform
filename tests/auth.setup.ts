@@ -1,15 +1,17 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 
-const authFile = 'playwright/.auth/user.json';
+setup('authenticate', async ({ page }, testInfo) => {
+  const authFile = testInfo.project.name === 'setup-webkit'
+    ? 'playwright/.auth/user-webkit.json'
+    : 'playwright/.auth/user.json';
 
-setup('authenticate', async ({ page }) => {
   await page.goto('http://localhost:3000/login');
   await page.fill('input[name="email"]', 'test@example.com');
   await page.fill('input[name="password"]', 'password123');
   await page.waitForTimeout(1000); // wait for hydration in WebKit
   await page.locator('button[type="submit"]').click({ force: true });
-  
+
   await page.waitForURL('**/');
-  
+
   await page.context().storageState({ path: authFile });
 });
