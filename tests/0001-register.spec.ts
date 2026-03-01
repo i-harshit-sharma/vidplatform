@@ -1,5 +1,7 @@
 import {test, expect} from '@playwright/test';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Register Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('http://localhost:3000/register');

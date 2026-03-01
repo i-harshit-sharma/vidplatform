@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthContextProvider } from "@/context/AuthProvider";
 import { headers } from "next/headers";
 import getUserInfo from "@/data/getUserInfo";
-import Header from "@/components/large/header";
+// import Header from "@/components/large/header";
 import { NotificationContextProvider } from "@/context/NotificationProvider";
 import getNotifications from "@/data/getNotifications";
 
@@ -60,7 +60,7 @@ export default async function RootLayout({
 				{user !== null ? (
 					<AuthContextProvider initialValue={user}>
 						<NotificationContextProvider initialValue={notifications}>
-						<Header />
+						{/* <Header /> */}
 						{children}
 						</NotificationContextProvider>
 					</AuthContextProvider>

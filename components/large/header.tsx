@@ -23,8 +23,9 @@ const Header = ({showChannel = false}: {showChannel?: boolean}) => {
 			<div className="flex-1">
 				<Search />
 			</div>
-			<div className="flex justify-between items-center gap-6">
+			<div className="flex justify-between items-center gap-4">
 				{showChannel && <ChannelSelect/>}
+				{!showChannel && <div className="w-8" />} {/* Placeholder to keep spacing consistent */}
 				<Create />
 				<Notifications />
 				<UserMenu />

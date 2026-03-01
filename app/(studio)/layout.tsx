@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 		"Upload your videos to Vid Platform and share them with the world.",
 };
 
-const getUser = async () => {
+const getChannel = async () => {
 	const headerlist = await headers();
 	const headerValue = headerlist.get("x-user-name");
 	if (!headerValue) {
@@ -27,13 +27,13 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const user = await getUser();
+	const channel = await getChannel();
 
 	return (
         <>
-				{user !== null ? (
+				{channel !== null ? (
 					<>
-						<ChannelContextProvider initialValue={user}>
+						<ChannelContextProvider initialValue={channel}>
                             <Header showChannel={true}/>
 							{children}
 						</ChannelContextProvider>
