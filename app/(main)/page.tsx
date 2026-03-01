@@ -55,7 +55,9 @@ export default function Home() {
                     <option value="dark">Dark</option>
                     <option value="system">System</option>
                 </select>
+                <h1>Welcome</h1>
             </div>
+
         </>
     );
 }
