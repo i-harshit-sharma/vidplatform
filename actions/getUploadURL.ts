@@ -4,7 +4,7 @@ import { withAuth } from "@/libs/auth";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const getUploadURL = withAuth(async (user, fileName: string)=>{
+const getUploadURL = withAuth(async (user, fileName: string, fileExt: string, contentType: string)=>{
     console.log("Generating upload URL for user:", user.username, "and file:", fileName);
     const S3 = new S3Client({
         region: "auto",
@@ -15,12 +15,12 @@ const getUploadURL = withAuth(async (user, fileName: string)=>{
         },
     })
 
-    const uploadFileName = `raw-uploads/${user.username}/${fileName}-${Date.now()}.mp4`;
+    const uploadFileName = `raw-uploads/${user.username}/${fileName}-${Date.now()}.${fileExt}`;
 
     const command = new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME!,
         Key: uploadFileName,
-        ContentType: "video/mp4",
+        ContentType: contentType,
     });
 
     

@@ -45,6 +45,7 @@ const accountSchema = new mongoose.Schema(
 		password: { type: String, required: true },
 		profile_picture_url: { type: String },
 		channel_id: { type: [mongoose.Schema.Types.ObjectId], ref: "Channel" },
+		selected_channel: { type: mongoose.Schema.Types.ObjectId, ref: "Channel" },	
 		settings: { type: settingsSchema, default: () => ({}) },
 	},
 	{ timestamps: true },

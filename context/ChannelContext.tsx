@@ -2,16 +2,16 @@
 import { createContext, useContext, useState } from "react"
 import { channelType } from "@/types/channel";
 interface ChannelContextType {
-    channels: channelType[] | undefined;
-    setChannels: (channels: channelType[] | undefined)=>void;
-    selectedChannel: channelType | null;
-    setSelectedChannel: (channel: channelType | null) => void;
+  channels: channelType[] | undefined;
+  setChannels: (channels: channelType[] | undefined) => void;
+  selectedChannel: string | null;
+  setSelectedChannel: (id: string | null) => void;
 }
 const ChannelContext = createContext<ChannelContextType | undefined>(undefined);
 
-const ChannelContextProvider = ({children, initialValue}:{children: React.ReactNode, initialValue: channelType[] | undefined})=>{
-    const [channels, setChannels] = useState<channelType[] | undefined>(initialValue);
-    const [selectedChannel, setSelectedChannel] = useState<channelType | null>(channels?.[0] || null);
+const ChannelContextProvider = ({ children, initialValue }: { children: React.ReactNode, initialValue: channelType[] | undefined }) => {
+  const [channels, setChannels] = useState<channelType[] | undefined>(initialValue);
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(initialValue && initialValue.length > 0 ? initialValue[0]._id : null);
   return (
     <ChannelContext.Provider value={{ channels, setChannels, selectedChannel, setSelectedChannel }}>
       {children}
@@ -20,12 +20,12 @@ const ChannelContextProvider = ({children, initialValue}:{children: React.ReactN
 }
 
 
-function useChannels(){
-    const context = useContext(ChannelContext);
-    if(context == undefined){
-        throw new Error("Use Channels must be used inside the Channel Provider");
-    }
-    return context;
+function useChannels() {
+  const context = useContext(ChannelContext);
+  if (context == undefined) {
+    throw new Error("Use Channels must be used inside the Channel Provider");
+  }
+  return context;
 }
 
-export {ChannelContextProvider, useChannels}
+export { ChannelContextProvider, useChannels }

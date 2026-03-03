@@ -1,63 +1,35 @@
-"use client";
-import logoutUser from "@/actions/logout";
-import globalLogout from "@/actions/globalLogout";
-import Header from "@/components/large/header";
-import setThemeAction from "@/actions/setTheme"; // Renamed import to avoid naming conflicts
-import { useAuth } from "@/context/AuthProvider";
-import { useRouter } from "next/navigation"; // Import the router
-import { UserType } from "@/types/user";
+import ThemeSwitcher from "@/components/themeSwitcher";
+import getVideos, { VideoType } from "@/data/getVideos";
+import VideoCard from "@/components/video/VideoCard";
 
-export default function Home() {
-    const { user, setUser } = useAuth();
-    const router = useRouter();
-
-    async function handleThemeChange(newTheme: "light" | "dark" | "system") {
-        // 1. Update the DOM directly for instant visual feedback (Optimistic UI)
-        const root = document.documentElement;
-        root.classList.remove("light", "dark");
-        
-        let themeToApply = newTheme;
-        if (newTheme === "system") {
-            // Check the user's OS preference if "system" is selected
-            themeToApply = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        }
-        root.classList.add(themeToApply);
-
-        // 2. Update local React context state
-        if (user) {
-            setUser({ ...user, settings: { ...user.settings, theme: newTheme } });
-        }
-
-        try {
-            // 3. Persist the change to your database via Server Action
-            await setThemeAction(newTheme);
-            
-            // 4. Tell Next.js to re-fetch Server Components (like your layout) 
-            // so they have the latest data for future navigations.
-            router.refresh(); 
-        } catch (error) {
-            console.error("Error setting theme:", error);
-            // Optional: Revert DOM and state here if the DB update fails
-        }
-    }
+// By removing "use client" this becomes a Server Component 
+// capable of directly fetching data via await.
+export default async function Home() {
+    // 1. Fetch data
+    const videos: VideoType[] = await getVideos();
 
     return (
-        <>
-            {/* <button onClick={() => logoutUser()}>Logout</button> */}
-            {/* <button onClick={() => globalLogout()}>Global Logout</button> */}
-            <div>
-                {/* Use the new handler, and switch defaultValue to value for a controlled component */}
-                <select 
-                    onChange={(e) => handleThemeChange(e.target.value as "light" | "dark" | "system")} 
-                    value={user?.settings?.theme || "light"}
-                >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="system">System</option>
-                </select>
-                <h1>Welcome</h1>
+        <div className="w-full flex flex-col min-h-screen">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+                <h1 className="text-xl font-bold">Recommended Videos</h1>
+                {/* 2. Client Component for interactivity */}
+                <ThemeSwitcher />
             </div>
 
-        </>
+            <main className="flex-1 p-4 md:p-6 pb-20 max-w-[2000px] mx-auto w-full">
+                {videos.length === 0 ? (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        No videos uploaded yet.
+                    </div>
+                ) : (
+                    // YouTube-like responsive grid
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-y-10 gap-x-4">
+                        {videos.map((video) => (
+                            <VideoCard key={video._id} video={video} />
+                        ))}
+                    </div>
+                )}
+            </main>
+        </div>
     );
 }

@@ -21,6 +21,7 @@ const geistMono = Geist_Mono({
 const cascadiaMono = Cascadia_Mono({
 	variable: "--font-cascadia-mono",
 	subsets: ["latin"],
+	adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -47,7 +48,7 @@ export default async function RootLayout({
 }>) {
 	const user = await getUser();
 	let notifications = [];
-	if(user){
+	if (user) {
 		notifications = await getNotifications(user?.username || "");
 	}
 	const theme = user?.settings.theme;
@@ -60,8 +61,8 @@ export default async function RootLayout({
 				{user !== null ? (
 					<AuthContextProvider initialValue={user}>
 						<NotificationContextProvider initialValue={notifications}>
-						{/* <Header /> */}
-						{children}
+							{/* <Header /> */}
+							{children}
 						</NotificationContextProvider>
 					</AuthContextProvider>
 				) : (
