@@ -12,6 +12,8 @@ const videoSchema = new mongoose.Schema({
     thumbnail_url: { type: String, required: true },
     r2Url: { type: String, required: true },
     hlsUrl: { type: String, required: true },
+    ready_to_be_served: { type: Boolean, default: false },
+    processing_status: { type: String, enum: ["processing", "running ai", "completed", "failed"], default: "processing" },
 }, { timestamps: true });
 
 export default mongoose.models.Video || mongoose.model("Video", videoSchema);

@@ -25,6 +25,7 @@ export default function UploadForm() {
     const [description, setDescription] = useState("");
     const [channelId, setChannelId] = useState("");
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [step, setStep] = useState(1);
 
     useEffect(() => {
         if (!videoId) return;
@@ -166,81 +167,125 @@ export default function UploadForm() {
     };
 
 
-    return (
-        <>
-            <form>
-                <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Video Title
-                </label>
-                <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Enter your video title"
-                    required
-                />
-                <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Video Description
-                </label>
-                <textarea
-                    id="description"
-                    name="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
-                    className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Enter your video description"
-                    required
-                ></textarea>
-                <label
-                    htmlFor="channel"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Select Channel
-                </label>
-                <select
-                    id="channel"
-                    name="channel"
-                    value={channelId}
-                    onChange={(e) => setChannelId(e.target.value)}
-                    className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    required
-                >
-                    <option value="">Select a channel</option>
-                    {channels?.map((channel) => (
-                        <option key={channel._id || channel.name} value={channel._id || channel.name}>
-                            {channel.name}
-                        </option>
-                    ))}
-                </select>
-                <label htmlFor="thumbnail">Upload Thumbnail</label>
-                <input
-                    type="file"
-                    id="thumbnail"
-                    name="thumbnail"
-                    accept="image/*"
-                    onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 mb-4"
-                />
-            </form>
-            <div className="space-y-4 p-4 border rounded-lg max-w-md">
-                <input
-                    type="file"
-                    accept="video/*"
-                    onChange={handleUpload}
-                    disabled={isUploading}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
+    // return (
+    //     <>
+    //         <form>
+    //             <label
+    //                 htmlFor="title"
+    //                 className="block text-sm font-medium text-gray-700 mb-2"
+    //             >
+    //                 Video Title
+    //             </label>
+    //             <input
+    //                 type="text"
+    //                 id="title"
+    //                 name="title"
+    //                 value={title}
+    //                 onChange={(e) => setTitle(e.target.value)}
+    //                 className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    //                 placeholder="Enter your video title"
+    //                 required
+    //             />
+    //             <label
+    //                 htmlFor="description"
+    //                 className="block text-sm font-medium text-gray-700 mb-2"
+    //             >
+    //                 Video Description
+    //             </label>
+    //             <textarea
+    //                 id="description"
+    //                 name="description"
+    //                 value={description}
+    //                 onChange={(e) => setDescription(e.target.value)}
+    //                 rows={4}
+    //                 className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    //                 placeholder="Enter your video description"
+    //                 required
+    //             ></textarea>
+    //             <label
+    //                 htmlFor="channel"
+    //                 className="block text-sm font-medium text-gray-700 mb-2"
+    //             >
+    //                 Select Channel
+    //             </label>
+    //             <select
+    //                 id="channel"
+    //                 name="channel"
+    //                 value={channelId}
+    //                 onChange={(e) => setChannelId(e.target.value)}
+    //                 className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    //                 required
+    //             >
+    //                 <option value="">Select a channel</option>
+    //                 {channels?.map((channel) => (
+    //                     <option key={channel._id || channel.name} value={channel._id || channel.name}>
+    //                         {channel.name}
+    //                     </option>
+    //                 ))}
+    //             </select>
+    //             <label htmlFor="thumbnail">Upload Thumbnail</label>
+    //             <input
+    //                 type="file"
+    //                 id="thumbnail"
+    //                 name="thumbnail"
+    //                 accept="image/*"
+    //                 onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+    //                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 mb-4"
+    //             />
+    //         </form>
+    //         <div className="space-y-4 p-4 border rounded-lg max-w-md">
+    //             <input
+    //                 type="file"
+    //                 accept="video/*"
+    //                 onChange={handleUpload}
+    //                 disabled={isUploading}
+    //                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+    //             />
 
+    //             {isUploading && (
+    //                 <div className="w-full">
+    //                     <div className="flex justify-between mb-1 text-sm font-medium text-blue-700">
+    //                         <span>Uploading...</span>
+    //                         <span>
+    //                             {progress}% of (
+    //                             {Math.round((fileSize / 1024 / 1024) * 100) / 100} MB)
+    //                         </span>
+    //                     </div>
+    //                     Please wait while your video is being uploaded. Do not close this window.
+    //                     <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+    //                         <div
+    //                             className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+    //                             style={{ width: `${progress}%` }}
+    //                         ></div>
+    //                     </div>
+    //                 </div>
+    //             )}
+
+    //             {isTranscoding && (
+    //                 <div className="w-full mt-4 p-4 border rounded-lg bg-gray-50 max-h-64 overflow-y-auto">
+    //                     <div className="flex justify-between mb-2 text-sm font-medium text-purple-700">
+    //                         <span>Transcoding Status</span>
+    //                     </div>
+    //                     <div className="text-sm text-gray-700 font-mono whitespace-pre-wrap flex flex-col gap-1">
+    //                         {transcodingLogs.length > 0 && (
+    //                             <div>{transcodingLogs[transcodingLogs.length - 1]}</div>
+    //                         )}
+    //                     </div>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     </>
+    // );
+    return (
+        <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        {/* === UPLOADING & PROCESSING STATE === */}
+        {/* If uploading or transcoding, hide the form and ONLY show progress */}
+        {(isUploading || isTranscoding) ? (
+            <div className="space-y-4 animate-pulse-fade-in">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                    Processing Video
+                </h2>
+                
                 {isUploading && (
                     <div className="w-full">
                         <div className="flex justify-between mb-1 text-sm font-medium text-blue-700">
@@ -250,10 +295,12 @@ export default function UploadForm() {
                                 {Math.round((fileSize / 1024 / 1024) * 100) / 100} MB)
                             </span>
                         </div>
-                        Please wait while your video is being uploaded. Do not close this window.
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                        <p className="text-xs text-gray-500 mb-3">
+                            Please wait while your video is being uploaded. Do not close this window.
+                        </p>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2 overflow-hidden">
                             <div
-                                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${progress}%` }}
                             ></div>
                         </div>
@@ -261,18 +308,143 @@ export default function UploadForm() {
                 )}
 
                 {isTranscoding && (
-                    <div className="w-full mt-4 p-4 border rounded-lg bg-gray-50 max-h-64 overflow-y-auto">
+                    <div className="w-full mt-4 p-4 border rounded-lg bg-gray-50 max-h-64 overflow-y-auto shadow-inner">
                         <div className="flex justify-between mb-2 text-sm font-medium text-purple-700">
                             <span>Transcoding Status</span>
                         </div>
                         <div className="text-sm text-gray-700 font-mono whitespace-pre-wrap flex flex-col gap-1">
-                            {transcodingLogs.length > 0 && (
+                            {transcodingLogs.length > 0 ? (
                                 <div>{transcodingLogs[transcodingLogs.length - 1]}</div>
+                            ) : (
+                                <div>Initializing transcoder...</div>
                             )}
                         </div>
                     </div>
                 )}
             </div>
-        </>
-    );
+        ) : (
+            /* === MULTISTEP FORM STATE === */
+            <>
+                {/* Visual Step Indicator */}
+                <div className="flex items-center gap-2 mb-6">
+                    <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 1 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                    <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                </div>
+
+                <form onSubmit={(e) => e.preventDefault()}>
+                    {/* STEP 1: Video Details */}
+                    {step === 1 && (
+                        <div className="transition-opacity duration-300 ease-in-out">
+                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Video Details</h2>
+                            
+                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                                Video Title
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow"
+                                placeholder="Enter your video title"
+                                required
+                            />
+
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                                Video Description
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows={4}
+                                className="block w-full p-2 border border-gray-300 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow"
+                                placeholder="Enter your video description"
+                                required
+                            ></textarea>
+
+                            <label htmlFor="channel" className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Channel
+                            </label>
+                            <select
+                                id="channel"
+                                name="channel"
+                                value={channelId}
+                                onChange={(e) => setChannelId(e.target.value)}
+                                className="block w-full p-2 border border-gray-300 rounded-md mb-6 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow"
+                                required
+                            >
+                                <option value="">Select a channel</option>
+                                {channels?.map((channel) => (
+                                    <option key={channel._id || channel.name} value={channel._id || channel.name}>
+                                        {channel.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => setStep(2)}
+                                    // Prevent moving to step 2 if required fields are empty
+                                    disabled={!title.trim() || !description.trim() || !channelId} 
+                                    className="px-6 py-2 bg-blue-600 text-white font-medium text-sm rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next Step
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* STEP 2: Media Upload */}
+                    {step === 2 && (
+                        <div className="transition-opacity duration-300 ease-in-out">
+                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Media</h2>
+                            
+                            <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700 mb-2">
+                                Upload Thumbnail
+                            </label>
+                            <input
+                                type="file"
+                                id="thumbnail"
+                                name="thumbnail"
+                                accept="image/*"
+                                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 mb-6 transition-colors"
+                            />
+
+                            <label htmlFor="video" className="block text-sm font-medium text-gray-700 mb-2">
+                                Upload Video
+                            </label>
+                            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                <input
+                                    type="file"
+                                    id="video"
+                                    accept="video/*"
+                                    onChange={handleUpload} // Triggers upload, sets isUploading to true, automatically hiding this form
+                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Selecting a file will immediately begin the upload process.
+                                </p>
+                            </div>
+
+                            <div className="flex justify-between mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setStep(1)}
+                                    className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-medium text-sm rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                    Back
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </form>
+            </>
+        )}
+    </div>
+    )
 }

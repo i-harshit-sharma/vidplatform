@@ -31,32 +31,24 @@ const saveVideo = async (user: any, title: string, description: string, channel_
             thumbnail_url,
             r2Url: video_url,
             hlsUrl: video_url,
+            processing_status: "processing",
+            ready_to_be_served: false,
         });
 
-        // Trigger background job to request catcher
+        // Trigger background job to process the video
         try {
             await qstashClient.publishJSON({
                 url: `${process.env.PROCESSOR_URL}/api/ingest`,
                 headers: {
                     "Content-Type": "application/json",
-                    "origin": "https://your-specific-host.com"
+                    "origin": process.env.ORIGIN_URL!,
                 },
                 body: {
                     videoId: newVideo._id.toString(),
                     r2Url: video_url
                 },
             });
-            // const result =await fetch(`${process.env.PROCESSOR_URL}/api/ingest`, {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //         "origin": "https://your-specific-host.com"
-            //     },
-            //     body: JSON.stringify({
-            //         videoId: newVideo._id.toString(),
-            //         r2Url: video_url
-            //     }),
-            // });
+
             // console.log(result);
             console.log(`QStash background job published for video ${newVideo._id}`);
         } catch (qstashError) {
