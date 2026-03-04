@@ -28,18 +28,36 @@ const saveVideo = async (user: any, title: string, description: string, channel_
             description,
             channel_id,
             video_url,
-            thumbnail_url
+            thumbnail_url,
+            r2Url: video_url,
+            hlsUrl: video_url,
         });
 
         // Trigger background job to request catcher
         try {
             await qstashClient.publishJSON({
-                url: "https://runner.requestcatcher.com/",
+                url: `${process.env.PROCESSOR_URL}/api/ingest`,
+                headers: {
+                    "Content-Type": "application/json",
+                    "origin": "https://your-specific-host.com"
+                },
                 body: {
                     videoId: newVideo._id.toString(),
-                    videoUrl: video_url
+                    r2Url: video_url
                 },
             });
+            // const result =await fetch(`${process.env.PROCESSOR_URL}/api/ingest`, {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         "origin": "https://your-specific-host.com"
+            //     },
+            //     body: JSON.stringify({
+            //         videoId: newVideo._id.toString(),
+            //         r2Url: video_url
+            //     }),
+            // });
+            // console.log(result);
             console.log(`QStash background job published for video ${newVideo._id}`);
         } catch (qstashError) {
              console.error("Failed to publish QStash job, but video was saved:", qstashError);
@@ -48,7 +66,7 @@ const saveVideo = async (user: any, title: string, description: string, channel_
 
         // Convert the mongoose document to a plain JS object to pass across server-client boundary
         const serializedVideo = JSON.parse(JSON.stringify(newVideo.toObject ? newVideo.toObject() : newVideo));
-        return { success: true, video: serializedVideo };
+        return { success: true, video: serializedVideo,  };
     } catch (error: any) {
         console.error("Error saving video details:", error);
         return { error: error.message || "Failed to save video details" };

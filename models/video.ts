@@ -10,6 +10,8 @@ const videoSchema = new mongoose.Schema({
     channel_id: { type: mongoose.Schema.Types.ObjectId, ref: "Channel", required: true },
     video_url: { type: String, required: true }, // The actual AWS S3 / Cloudinary link
     thumbnail_url: { type: String, required: true },
+    r2Url: { type: String, required: true },
+    hlsUrl: { type: String, required: true },
 }, { timestamps: true });
 
 export default mongoose.models.Video || mongoose.model("Video", videoSchema);

@@ -1,4 +1,5 @@
 import VideoModel from "@/models/video";
+import "@/models/channel";
 import { dbConnect } from "@/db/db";
 
 // Use partial Record for the types roughly matching the mongoose schema
@@ -15,6 +16,8 @@ export type VideoType = {
     thumbnail_url: string;
     createdAt?: string;
     updatedAt?: string;
+    r2Url: string;
+    hlsUrl: string;
 };
 
 export default async function getVideos(): Promise<VideoType[]> {

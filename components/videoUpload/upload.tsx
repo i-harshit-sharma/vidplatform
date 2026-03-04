@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import getUploadURL from "@/actions/getUploadURL";
 import saveVideoDetails from "@/actions/saveVideoDetails";
 import { useChannels } from "@/context/ChannelContext";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 
 export default function UploadForm() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const videoId = searchParams.get("videoId");
+
     const [progress, setProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [fileSize, setFileSize] = useState(0);
+    const [transcodingLogs, setTranscodingLogs] = useState<string[]>([]);
+    const [isTranscoding, setIsTranscoding] = useState(false);
     const { channels } = useChannels();
 
     const [title, setTitle] = useState("");
@@ -18,6 +26,63 @@ export default function UploadForm() {
     const [channelId, setChannelId] = useState("");
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
+    useEffect(() => {
+        if (!videoId) return;
+
+        setIsTranscoding(true);
+        setTranscodingLogs(prev => prev.length === 0 ? [`Connecting to processor for video ${videoId}...`] : prev);
+
+        const processorUrl = process.env.NEXT_PUBLIC_PROCESSOR_URL;
+        if(!processorUrl){
+            console.error("processor url not defined in environment variables");
+            return;
+        }
+        const eventSource = new EventSource(`${processorUrl}/api/status/stream?videoId=${videoId}`);
+
+        eventSource.onopen = () => {
+            setTranscodingLogs(prev => [...prev, "Connected to processor..."]);
+        };
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.status === 'success') {
+                    setTranscodingLogs(prev => [...prev, "Transcoding completed successfully!"]);
+                    eventSource.close();
+                    setTimeout(() => {
+                        setIsTranscoding(false);
+                        alert("Transcoding successful!");
+                        router.replace(pathname);
+                        setTitle("");
+                        setDescription("");
+                        setChannelId("");
+                        setThumbnailFile(null);
+                        setTranscodingLogs([]);
+                    }, 3000);
+                } else if (data.status === 'error' || data.status === 'failed') {
+                    setTranscodingLogs(prev => [...prev, `Error: ${data.error || data.message}`]);
+                    eventSource.close();
+                } else {
+                    setTranscodingLogs(prev => {
+                        const newLog = data.message || `Status: ${data.status || 'processing'} ${data.progress ? `(${data.progress}%)` : ''}`;
+                        return [...prev, newLog];
+                    });
+                }
+            } catch (e) {
+                setTranscodingLogs(prev => [...prev, event.data]);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("SSE Error:", error);
+            setTranscodingLogs(prev => [...prev, "Disconnected from processor or error occurred."]);
+            eventSource.close();
+        };
+
+        return () => {
+            eventSource.close();
+        };
+    }, [videoId, pathname, router]);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -89,11 +154,9 @@ export default function UploadForm() {
                 return;
             }
 
-            alert("Upload successful!");
-            setTitle("");
-            setDescription("");
-            setChannelId("");
-            setThumbnailFile(null);
+            const newVideoId = saveResult.video._id;
+            router.replace(`${pathname}?videoId=${newVideoId}`);
+
         } catch (error) {
             console.error("Upload failed:", error);
             alert("Upload failed. Check the console for details.");
@@ -188,11 +251,24 @@ export default function UploadForm() {
                             </span>
                         </div>
                         Please wait while your video is being uploaded. Do not close this window.
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                             <div
                                 className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
                                 style={{ width: `${progress}%` }}
                             ></div>
+                        </div>
+                    </div>
+                )}
+
+                {isTranscoding && (
+                    <div className="w-full mt-4 p-4 border rounded-lg bg-gray-50 max-h-64 overflow-y-auto">
+                        <div className="flex justify-between mb-2 text-sm font-medium text-purple-700">
+                            <span>Transcoding Status</span>
+                        </div>
+                        <div className="text-sm text-gray-700 font-mono whitespace-pre-wrap flex flex-col gap-1">
+                            {transcodingLogs.length > 0 && (
+                                <div>{transcodingLogs[transcodingLogs.length - 1]}</div>
+                            )}
                         </div>
                     </div>
                 )}
